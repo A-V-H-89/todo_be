@@ -5,10 +5,9 @@ const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 const { secret } = require('./config')
 
-const generateAccessToken = (id, roles) => {
+const generateAccessToken = (id) => {
 	const payload = {
-		id,
-		roles
+		id
 	}
 
 	return jwt.sign(payload, secret, { expiresIn: '24h' })
@@ -33,7 +32,9 @@ class authController {
 			const userRole = await Role.findOne({ value: 'USER' })
 			const user = new User({ username, email, password: hashPassword, roles: [userRole.value] })
 			await user.save()
-			return res.status(200).json({ message: 'User was registered success!', roles: ['USER'] })
+			const token = generateAccessToken(user._id)
+
+			return res.status(200).json({ message: 'User was registered success!', token })
 		} catch (e) {
 			console.log(e)
 			res.status(400).json({ message: 'Registration error' })
@@ -53,8 +54,8 @@ class authController {
 				return res.status(403).json({ message: 'Password incorrect' })
 			}
 
-			const token = generateAccessToken(user._id, user.roles)
-			return res.json({ token, roles: user.roles })
+			const token = generateAccessToken(user._id)
+			return res.json({ token })
 
 		} catch (e) {
 			console.log(e)
