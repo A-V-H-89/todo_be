@@ -12,18 +12,16 @@ class ItemsController {
         return res.status(400).json({message: "This user doesn't exist"})
       }
 
-      await user.update({title})
-      // await user.save()
+      user.todos.push(title)
+      await user.save()
 
       res.status(200).json({message: "Item was saved!"})
       // req.user = id of user which can define where I should save collection
 
-
-
     } catch(err) {
-        res.status(400).json({message: 'Save item error'})
+        console.log(err)
+        res.status(400).json({error: 'Save item error'})
     }
-    console.log('save item')
   }
 
   async deleteItem() {
